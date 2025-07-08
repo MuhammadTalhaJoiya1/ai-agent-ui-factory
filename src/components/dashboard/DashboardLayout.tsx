@@ -5,19 +5,33 @@ import { DashboardMain } from "./DashboardMain";
 
 export function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
-    <div className="flex h-screen bg-dashboard-bg">
+    <div className="flex h-screen bg-dashboard-bg overflow-hidden">
       {/* Sidebar */}
-      <Sidebar collapsed={sidebarCollapsed} onToggleCollapse={toggleSidebar} />
+      <Sidebar 
+        collapsed={sidebarCollapsed} 
+        onToggleCollapse={toggleSidebar}
+        mobileOpen={mobileMenuOpen}
+        onMobileClose={closeMobileMenu}
+      />
       
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 min-w-0">
-        <TopNavbar />
+        <TopNavbar onMobileMenuToggle={toggleMobileMenu} />
         <DashboardMain />
       </div>
     </div>

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Wand2,
@@ -13,6 +12,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -33,88 +33,133 @@ const navigationItems = [
 interface SidebarProps {
   collapsed: boolean;
   onToggleCollapse: () => void;
+  mobileOpen: boolean;
+  onMobileClose: () => void;
 }
 
-export function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
+export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose }: SidebarProps) {
+  const location = useLocation();
+
+  const handleNavItemClick = (href: string) => {
+    // For now, only allow navigation to the dashboard
+    if (href === "/") {
+      window.location.href = href;
+    }
+    // Close mobile menu when item is clicked
+    onMobileClose();
+  };
+
   return (
-    <div
-      className={cn(
-        "flex flex-col h-full bg-dashboard-sidebar-bg border-r border-border transition-all duration-300 ease-in-out",
-        collapsed ? "w-16" : "w-64"
+    <>
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={onMobileClose}
+        />
       )}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        {!collapsed && (
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <Wand2 className="w-5 h-5 text-white" />
+      
+      {/* Sidebar */}
+      <div
+        className={cn(
+          "fixed lg:static inset-y-0 left-0 z-50 flex flex-col h-full bg-dashboard-sidebar-bg border-r border-border transition-all duration-300 ease-in-out",
+          // Desktop behavior
+          "lg:flex",
+          collapsed ? "lg:w-16" : "lg:w-64",
+          // Mobile behavior
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+          "w-64 lg:w-auto"
+        )}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          {!collapsed && (
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+                <Wand2 className="w-5 h-5 text-white" />
+              </div>
+              <div className="hidden lg:block">
+                <h1 className="font-semibold text-sm text-foreground">AI Content Agent</h1>
+                <p className="text-xs text-muted-foreground">Factory</p>
+              </div>
+              <div className="lg:hidden">
+                <h1 className="font-semibold text-sm text-foreground">AI Content Agent Factory</h1>
+              </div>
             </div>
-            <div>
-              <h1 className="font-semibold text-sm text-foreground">AI Content Agent</h1>
-              <p className="text-xs text-muted-foreground">Factory</p>
+          )}
+          
+          {/* Mobile close button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onMobileClose}
+            className="h-8 w-8 p-0 hover:bg-dashboard-sidebar-hover lg:hidden"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          
+          {/* Desktop collapse button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleCollapse}
+            className="hidden lg:flex h-8 w-8 p-0 hover:bg-dashboard-sidebar-hover"
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-2 overflow-y-auto">
+          <ul className="space-y-1">
+            {navigationItems.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <li key={item.name}>
+                  <button
+                    onClick={() => handleNavItemClick(item.href)}
+                    className={cn(
+                      "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200",
+                      "hover:bg-dashboard-sidebar-hover hover:text-foreground",
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground",
+                      collapsed ? "justify-center lg:justify-center" : "justify-start"
+                    )}
+                  >
+                    <item.icon className={cn("h-5 w-5", !collapsed && "mr-3")} />
+                    {!collapsed && <span>{item.name}</span>}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        {/* Footer - Hidden on mobile when collapsed, shown on desktop */}
+        {!collapsed && (
+          <div className="p-4 border-t border-border">
+            <div className="bg-gradient-card p-3 rounded-xl border">
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Wand2 className="w-4 h-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">Upgrade to Pro</p>
+                  <p className="text-xs text-muted-foreground">Unlock advanced features</p>
+                  <Button size="sm" className="w-full mt-2 h-7 text-xs">
+                    Upgrade Now
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onToggleCollapse}
-          className="h-8 w-8 p-0 hover:bg-dashboard-sidebar-hover"
-        >
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </Button>
       </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 p-2">
-        <ul className="space-y-1">
-          {navigationItems.map((item) => (
-            <li key={item.name}>
-              <NavLink
-                to={item.href}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200",
-                    "hover:bg-dashboard-sidebar-hover hover:text-foreground",
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground",
-                    collapsed ? "justify-center" : "justify-start"
-                  )
-                }
-              >
-                <item.icon className={cn("h-5 w-5", !collapsed && "mr-3")} />
-                {!collapsed && <span>{item.name}</span>}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* Footer */}
-      {!collapsed && (
-        <div className="p-4 border-t border-border">
-          <div className="bg-gradient-card p-3 rounded-xl border">
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Wand2 className="w-4 h-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">Upgrade to Pro</p>
-                <p className="text-xs text-muted-foreground">Unlock advanced features</p>
-                <Button size="sm" className="w-full mt-2 h-7 text-xs">
-                  Upgrade Now
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </>
   );
 }

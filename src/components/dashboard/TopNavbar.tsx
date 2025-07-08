@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, ChevronDown, Search, Plus } from "lucide-react";
+import { Bell, ChevronDown, Search, Plus, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -13,31 +13,53 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
-export function TopNavbar() {
+interface TopNavbarProps {
+  onMobileMenuToggle: () => void;
+}
+
+export function TopNavbar({ onMobileMenuToggle }: TopNavbarProps) {
   const [notifications] = useState(3);
 
   return (
-    <header className="h-16 bg-dashboard-navbar-bg border-b border-border flex items-center justify-between px-6">
-      {/* Search */}
-      <div className="flex items-center flex-1 max-w-xl">
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search projects, prompts, or content..."
-            className="pl-10 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary"
-          />
+    <header className="h-16 bg-dashboard-navbar-bg border-b border-border flex items-center justify-between px-4 lg:px-6">
+      {/* Left side - Mobile menu + Search */}
+      <div className="flex items-center flex-1 space-x-4">
+        {/* Mobile menu button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onMobileMenuToggle}
+          className="h-9 w-9 p-0 lg:hidden"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
+        {/* Search - Hidden on small screens, shown on medium+ */}
+        <div className="hidden md:flex items-center flex-1 max-w-xl">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search projects, prompts, or content..."
+              className="pl-10 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary"
+            />
+          </div>
         </div>
       </div>
 
       {/* Right side actions */}
-      <div className="flex items-center space-x-4">
-        {/* Create New Button */}
-        <Button size="sm" className="h-9 px-4">
-          <Plus className="h-4 w-4 mr-2" />
-          Create New
+      <div className="flex items-center space-x-2 lg:space-x-4">
+        {/* Search button for mobile */}
+        <Button variant="ghost" size="sm" className="h-9 w-9 p-0 md:hidden">
+          <Search className="h-4 w-4" />
         </Button>
 
-        {/* Workspace Switcher */}
+        {/* Create New Button - Hidden on small screens */}
+        <Button size="sm" className="hidden sm:flex h-9 px-4">
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden lg:inline">Create New</span>
+        </Button>
+
+        {/* Workspace Switcher - Responsive */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="h-9">
@@ -45,7 +67,7 @@ export function TopNavbar() {
                 <div className="w-5 h-5 rounded bg-gradient-primary flex items-center justify-center">
                   <span className="text-xs font-semibold text-white">M</span>
                 </div>
-                <span className="text-sm font-medium">My Workspace</span>
+                <span className="text-sm font-medium hidden sm:inline">My Workspace</span>
                 <ChevronDown className="h-3 w-3" />
               </div>
             </Button>
@@ -104,11 +126,11 @@ export function TopNavbar() {
                   <AvatarImage src="/placeholder-avatar.jpg" alt="John Doe" />
                   <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
-                <div className="hidden md:block text-left">
+                <div className="hidden xl:block text-left">
                   <div className="text-sm font-medium">John Doe</div>
                   <div className="text-xs text-muted-foreground">john@company.com</div>
                 </div>
-                <ChevronDown className="h-3 w-3" />
+                <ChevronDown className="h-3 w-3 hidden sm:block" />
               </div>
             </Button>
           </DropdownMenuTrigger>
