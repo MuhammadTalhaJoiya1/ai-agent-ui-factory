@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { TopNavbar } from "./TopNavbar";
 import { DashboardMain } from "./DashboardMain";
 
-export function DashboardLayout() {
+interface DashboardLayoutProps {
+  children?: ReactNode;
+}
+
+export function DashboardLayout({ children }: DashboardLayoutProps = {}) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -32,7 +36,7 @@ export function DashboardLayout() {
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 min-w-0">
         <TopNavbar onMobileMenuToggle={toggleMobileMenu} />
-        <DashboardMain />
+        {children || <DashboardMain />}
       </div>
     </div>
   );
