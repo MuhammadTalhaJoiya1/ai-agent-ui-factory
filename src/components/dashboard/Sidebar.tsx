@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Wand2,
@@ -26,7 +26,7 @@ const navigationItems = [
   { name: "Image & Video", icon: ImageIcon, href: "/image-video" },
   { name: "Voiceover", icon: Mic, href: "/voiceover" },
   { name: "History", icon: History, href: "/history" },
-  { name: "Team Collaboration", icon: Users, href: "/team" },
+  { name: "Team Collaboration", icon: Users, href: "/team-collaboration" },
   { name: "Settings", icon: Settings, href: "/settings" },
 ];
 
@@ -39,15 +39,6 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose }: SidebarProps) {
   const location = useLocation();
-
-  const handleNavItemClick = (href: string) => {
-    // For now, only allow navigation to the dashboard
-    if (href === "/") {
-      window.location.href = href;
-    }
-    // Close mobile menu when item is clicked
-    onMobileClose();
-  };
 
   return (
     <>
@@ -120,8 +111,9 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
               const isActive = location.pathname === item.href;
               return (
                 <li key={item.name}>
-                  <button
-                    onClick={() => handleNavItemClick(item.href)}
+                  <Link
+                    to={item.href}
+                    onClick={onMobileClose}
                     className={cn(
                       "w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200",
                       "hover:bg-dashboard-sidebar-hover hover:text-foreground",
@@ -133,7 +125,7 @@ export function Sidebar({ collapsed, onToggleCollapse, mobileOpen, onMobileClose
                   >
                     <item.icon className={cn("h-5 w-5", !collapsed && "mr-3")} />
                     {!collapsed && <span>{item.name}</span>}
-                  </button>
+                  </Link>
                 </li>
               );
             })}
