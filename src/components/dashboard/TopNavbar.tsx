@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, ChevronDown, Search, Plus, Menu } from "lucide-react";
+import { Bell, ChevronDown, Search, Plus, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface TopNavbarProps {
   onMobileMenuToggle: () => void;
@@ -19,6 +21,16 @@ interface TopNavbarProps {
 
 export function TopNavbar({ onMobileMenuToggle }: TopNavbarProps) {
   const [notifications] = useState(3);
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully.",
+    });
+  };
 
   return (
     <header className="h-16 bg-dashboard-navbar-bg border-b border-border flex items-center justify-between px-4 lg:px-6">
@@ -123,12 +135,12 @@ export function TopNavbar({ onMobileMenuToggle }: TopNavbarProps) {
             <Button variant="ghost" className="h-9 px-2 hover:bg-muted/50">
               <div className="flex items-center space-x-2">
                 <Avatar className="h-7 w-7">
-                  <AvatarImage src="/placeholder-avatar.jpg" alt="John Doe" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
+                  <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="hidden xl:block text-left">
-                  <div className="text-sm font-medium">John Doe</div>
-                  <div className="text-xs text-muted-foreground">john@company.com</div>
+                  <div className="text-sm font-medium">{user?.user_metadata?.display_name || user?.email?.split('@')[0]}</div>
+                  <div className="text-xs text-muted-foreground">{user?.email}</div>
                 </div>
                 <ChevronDown className="h-3 w-3 hidden sm:block" />
               </div>
@@ -144,7 +156,10 @@ export function TopNavbar({ onMobileMenuToggle }: TopNavbarProps) {
             <DropdownMenuItem>Documentation</DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Sign Out</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
